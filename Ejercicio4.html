@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+    <div class="contenedor">
+        <h1>Lista de Tareas</h1>
+        <input type="text" id="nuevaTarea" placeholder="Agregar nueva tarea">
+        <button onclick="agregarTarea()">Agregar</button>
+        <ul id="listaTareas"></ul>
+    </div>
+
+    <script>
+        // Cargar tareas al inicio
+        document.addEventListener("DOMContentLoaded", cargarTareas);
+
+        function cargarTareas() {
+            const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            tareas.forEach(tarea => {
+                crearElementoTarea(tarea.texto, tarea.terminada);
+            });
+        }
+
+        function agregarTarea() {
+            const input = document.getElementById("nuevaTarea");
+            const texto = input.value.trim();
+            if (texto !== "") {
+                crearElementoTarea(texto, false);
+                guardarTarea(texto, false);
+                input.value = "";
+            }
+        }
+
+        function crearElementoTarea(texto, terminada) {
+            const li = document.createElement("li");
+            li.textContent = texto;
+            li.classList.toggle("terminada", terminada);
+
+            const btnEliminar = document.createElement("button");
+            btnEliminar.textContent = "Eliminar";
+            btnEliminar.onclick = () => eliminarTarea(li);
+
+            li.appendChild(btnEliminar);
+            li.onclick = () => marcarTarea(li);
+            document.getElementById("listaTareas").appendChild(li);
+        }
+
+        function guardarTarea(texto, terminada) {
+            const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            tareas.push({ texto, terminada });
+            localStorage.setItem("tareas", JSON.stringify(tareas));
+        }
+
+        function eliminarTarea(li) {
+            const texto = li.firstChild.textContent;
+            li.remove();
+            let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            tareas = tareas.filter(tarea => tarea.texto !== texto);
+            localStorage.setItem("tareas", JSON.stringify(tareas));
+        }
+
+        function marcarTarea(li) {
+            li.classList.toggle("terminada");
+            const texto = li.firstChild.textContent;
+            let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            tareas = tareas.map(tarea => 
+                tarea.texto === texto ? { ...tarea, terminada: !tarea.terminada } : tarea
+            );
+            localStorage.setItem("tareas", JSON.stringify(tareas));
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+                       
